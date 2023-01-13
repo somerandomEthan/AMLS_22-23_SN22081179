@@ -18,7 +18,6 @@ import A1.landmark_MLP
 import A1.CNN
 import A1.landmark_XGBoost
 import A2.landmark_MLP
-import A2.CNN
 import B1.VGG
 import B1.EfficientNet
 import B2.EfficientNet
@@ -406,14 +405,14 @@ def solve_B2_EfficientNet_Cropping():
 
 
 def main():
-    # solve_A1_landmark_XGBoost()
-    # solve_A1_landmark_MLP()
-    # solve_A1_CNN()
+    solve_A1_landmark_XGBoost()
+    solve_A1_landmark_MLP()
+    solve_A1_CNN()
     solve_A2_MLP()
-    # solve_B1_VGG()
-    # solve_B1_EfficientNet_V2()
-    # solve_B2_EfficientNet()
-    # solve_B2_EfficientNet_Cropping()
+    solve_B1_VGG()
+    solve_B1_EfficientNet_V2()
+    solve_B2_EfficientNet()
+    solve_B2_EfficientNet_Cropping()
 
 
 if __name__ == "__main__":
