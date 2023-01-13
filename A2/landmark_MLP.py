@@ -92,7 +92,7 @@ def extract_features_labels(final_image_dir, celeba_images_dir, labels_filename)
     target_size = None
     labels_file = open(os.path.join(celeba_images_dir, labels_filename), 'r')
     lines = labels_file.readlines()
-    gender_labels = dict((line.split('\t')[1], int(line.split('\t')[2])) for line in lines[1:])
+    gender_labels = dict((line.split('\t')[1], int(line.split('\t')[3])) for line in lines[1:])
     if os.path.isdir(celeba_images_dir):
         all_features = []
         all_labels = []

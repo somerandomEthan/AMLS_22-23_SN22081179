@@ -7,12 +7,11 @@ import os
 import numpy as np
 import cv2
 import dlib
-
+from xgboost import XGBClassifier
 from tensorflow import keras
-from keras.models import Sequential
-from keras.layers import Dense, Flatten
-from keras.optimizers import Adam
 from keras.utils import load_img, img_to_array
+from datetime import datetime
+
 
 detector = dlib.get_frontal_face_detector()
 predictor = dlib.shape_predictor('shape_predictor_68_face_landmarks.dat')
@@ -72,22 +71,15 @@ def run_dlib_shape(image):
         # [i.e., (x, y, w, h)],
         #   (x, y, w, h) = face_utils.rect_to_bb(rect)
         (x, y, w, h) = rect_to_bb(rect)
-        face_shapes[:, i] = np.reshape(temp_shape, [136])
+        face_shapes[:, i] = np.reshape(temp_shape, [136])# xgboost support 2 dimensional input
         face_areas[0, i] = w * h
     # find largest face and keep
-    dlibout = np.reshape(np.transpose(face_shapes[:, np.argmax(face_areas)]), [68, 2])
+    dlibout = np.reshape(np.transpose(face_shapes[:, np.argmax(face_areas)]), [136])
 
     return dlibout, resized_image
 
+
 def extract_features_labels(final_image_dir, celeba_images_dir, labels_filename):
-    """
-    This funtion extracts the landmarks features for all images in the folder 'dataset/celeba'.
-    It also extract the gender label for each image.
-    :return:
-        landmark_features:  an array containing 68 landmark points for each image in which a face was detected
-        gender_labels:      an array containing the gender label (male=0 and female=1) for each image in
-                            which a face was detected
-    """
     image_paths = [os.path.join(final_image_dir, l) for l in os.listdir(final_image_dir)]
     target_size = None
     labels_file = open(os.path.join(celeba_images_dir, labels_filename), 'r')
@@ -114,23 +106,17 @@ def extract_features_labels(final_image_dir, celeba_images_dir, labels_filename)
     gender_labels = (np.array(all_labels) + 1)/2 # simply converts the -1 into 0, so male=0 and female=1
     return landmark_features, gender_labels
 
-def create_MLP_model(optimizer='Adam', learn_rate=0.001, amsgrad=False):
-
-    num_classes = 2
-    model = Sequential()
-    # Add the input layer and flatten the input
-    model.add(Flatten(input_shape = ( 68, 2)))
-    # Add the first hidden layer
-    model.add(Dense(units=128,activation='relu'))
-    # Add the second hidden layer
-    model.add(Dense(units=64,activation='relu'))
-    # Add the output layer
-    model.add(Dense(units=num_classes, activation='sigmoid'))
-
-    optimizer = Adam(lr=learn_rate, amsgrad=amsgrad )
-    # Compile model (sparse cross-entropy can be used if one hot encoding not used)
-    model.compile(loss='categorical_crossentropy', optimizer=optimizer, metrics=[keras.metrics.mae, keras.metrics.categorical_accuracy])
-
+def create_XGBoost_model(params = {'objective':'binary:logistic','max_depth': 4,'alpha': 10,'learning_rate': 1.0,'n_estimators':100}         ):
+    model = XGBClassifier(**params)
     return model
+
+def timer(start_time=None):
+    if not start_time:
+        start_time = datetime.now()
+        return start_time
+    elif start_time:
+        thour, temp_sec = divmod((datetime.now() - start_time).total_seconds(), 3600)
+        tmin, tsec = divmod(temp_sec, 60)
+        print('\n Time taken: %i hours %i minutes and %s seconds.' % (thour, tmin, round(tsec, 2)))
 
 
