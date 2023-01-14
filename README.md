@@ -99,4 +99,4 @@ The main function is composed of several sub function and you can run each funct
 
 &emsp; -- solve_B2_EfficientNet_Cropping()
 
-Without commenting anything, all tasks will be run one by one.
+Without commenting anything, all tasks will be run one by one when you run "main.py". Please remember to change the working dirctory to the loacation of the folder "AMLS_22-23_SN22081179".
